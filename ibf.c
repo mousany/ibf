@@ -536,7 +536,13 @@ void print_usage() {
 /**
  * @brief Print the help of IBF.
  */
-void print_help() {}
+void print_help() {
+  fprintf(stderr, "usage: ibf [options] ... [-c cmd | file | -] [arg] ...\n");
+  fprintf(stderr, "Options:\n");
+  fprintf(stderr, "-v, --version\t  : Print the version of IBF.\n");
+  fprintf(stderr, "-h, --help\t  : Print the help of IBF.\n");
+  fprintf(stderr, "-c, --command cmd : Run program passed in as string. \n");
+}
 
 /**
  * @brief Options for IBF.
