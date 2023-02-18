@@ -483,14 +483,37 @@ void run_console() {
 /**
  * @brief Run IBF from a file.
  * @param file The file to run.
+ * @return True if the file is run successfully.
  */
-void run_file(FILE *file) {}
+bool run_file(FILE *file) {
+  struct brainfuck_context *context = brainfuck_context_new(
+      brainfuck_input_handler_console, brainfuck_output_handler_console);
+  char *line = calloc(BRAINFUCK_MAX_LINE_LENGTH + 1, sizeof(char));
+  while (true) {
+    if (feof(file) || !brainfuck_readline_util(
+                          file, line, BRAINFUCK_MAX_LINE_LENGTH + 1, '\n')) {
+      break;
+    }
+    if (!brainfuck_main(context, line)) {
+      return false;
+    }
+  }
+  free(line);
+  if (context->state->loop_size > 0) {
+    brainfuck_context_free(context);
+    print_error_unmatched_loop_start();
+    return false;
+  }
+  brainfuck_context_free(context);
+  return true;
+}
 
 /**
  * @brief Run IBF from a command.
  * @param command The command to run.
+ * @return True if the command is run successfully.
  */
-void run_command(char *command) {
+bool run_command(char *command) {
   int32_t unmatched_loop = 0;
   for (size_t i = 0; i < strlen(command); i++) {
     switch (command[i]) {
@@ -506,15 +529,19 @@ void run_command(char *command) {
   }
   if (unmatched_loop < 0) {
     print_error_unmatched_loop_end();
-    return;
+    return false;
   } else if (unmatched_loop > 0) {
     print_error_unmatched_loop_start();
-    return;
+    return false;
   }
   struct brainfuck_context *context = brainfuck_context_new(
       brainfuck_input_handler_console, brainfuck_output_handler_console);
-  brainfuck_main(context, command);
+  if (!brainfuck_main(context, command)) {
+    brainfuck_context_free(context);
+    return false;
+  }
   brainfuck_context_free(context);
+  return true;
 }
 
 /**
@@ -577,7 +604,9 @@ int main(int argc, char *argv[]) {
         print_help();
         return EXIT_SUCCESS;
       case 'c': /* Command. */
-        run_command(optarg);
+        if (!run_command(optarg)) {
+          return EXIT_FAILURE;
+        }
         return EXIT_SUCCESS;
       case '?': /* Unknown option. */
         fprintf(stderr, "Unknown option %s\n", argv[optind - 1]);
@@ -602,7 +631,10 @@ int main(int argc, char *argv[]) {
               argv[1], errno, strerror(errno));
       return EXIT_FAILURE;
     }
-    run_file(file);
+    if (!run_file(file)) {
+      fclose(file);
+      return EXIT_FAILURE;
+    }
     fclose(file);
   } else {
     /* Run interactively in the console. */
