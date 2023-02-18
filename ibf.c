@@ -424,8 +424,21 @@ bool brainfuck_readline_util(FILE *stream, char *dest, size_t size,
 #define isatty _isatty
 #define STDIN_FILENO 0
 #else
+#include <termios.h>
 #include <unistd.h>
 #endif
+
+/**
+ * @brief Flush the stdin buffer.
+ */
+void stdin_flush() {
+#if defined(WIN32) || defined(_WIN32) || \
+    defined(__WIN32) && !defined(__CYGWIN__)
+  fflush(stdin);
+#else
+  tcflush(STDIN_FILENO, TCIFLUSH);
+#endif
+}
 
 #if defined(__GNUC__)
 #define COMPILER_NAME "GCC"
@@ -478,12 +491,14 @@ void run_console() {
 #endif
   fprintf(stderr, ">>> ");
   while (true) {
+    fflush(stdout);
     if (!brainfuck_readline_util(stdin, line, BRAINFUCK_MAX_LINE_LENGTH + 1,
                                  '\n')) {
       fprintf(stderr, ">>> ");
       continue;
     }
     brainfuck_main(context, line, strlen(line));
+    stdin_flush();
     fprintf(stderr, ">>> ");
   }
   free(line);
