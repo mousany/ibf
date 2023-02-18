@@ -446,9 +446,66 @@ void stdin_flush() {
 #define IBF_VERSION_MINOR 1
 #define IBF_VERSION_PATCH 0
 
-uint8_t brainfuck_input_handler_console() { return getchar(); }
+uint8_t brainfuck_input_handler_stdin() { return getchar(); }
 
-void brainfuck_output_handler_console(uint8_t c) { putchar(c); }
+void brainfuck_output_handler_stdout(uint8_t c) { putchar(c); }
+
+void console_print_help() {
+  fprintf(stderr, "Welcome to IBF %d.%d.%d!\n", IBF_VERSION_MAJOR,
+          IBF_VERSION_MINOR, IBF_VERSION_PATCH);
+  fprintf(stderr, "\n");
+  fprintf(
+      stderr,
+      "Brainfuck is an esoteric programming language created in 1993 "
+      "by Urban \nMuller. And it is the smallest Turing-complete language.\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Instructions of Brainfuck:\n");
+  fprintf(stderr,
+          ">  Increment the data pointer (to point to the next cell to the "
+          "right).\n");
+  fprintf(
+      stderr,
+      "Decrement the data pointer (to point to the next cell to the left).\n");
+  fprintf(stderr,
+          "+  Increment (increase by one) the byte at the data pointer.\n");
+  fprintf(stderr,
+          "-  Decrement (decrease by one) the byte at the data pointer.\n");
+  fprintf(stderr, ".  Output the byte at the data pointer.\n");
+  fprintf(stderr,
+          ",  Accept one byte of input, storing its value in the byte at the "
+          "data \n   pointer.\n");
+  fprintf(stderr,
+          "[  If the byte at the data pointer is zero, then instead of moving "
+          "the \n   instruction pointer forward to the next command, jump it "
+          "forward to \n   the command after the matching ] command.\n");
+  fprintf(
+      stderr,
+      "]  If the byte at the data pointer is nonzero, then instead of "
+      "moving \n   the instruction pointer forward to the next command, jump "
+      "it back to \n   the command after the matching [ command.\n");
+
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Any other characters are seen as comments.\n");
+}
+
+void console_print_copyright() {
+  fprintf(stderr, "Copyright (C) 2023 CS100, Shanghaitech University.\n");
+  fprintf(stderr, "All rights reserved.\n");
+}
+
+void console_print_credits() {
+  fprintf(stderr,
+          "Thanks to Linshu Yang, Yuqi Liu, Ke Gong and other teaching "
+          "crews for \nsupporting IBF development. See cs100.geekpie.club for "
+          "more information.\n");
+}
+
+void console_print_license() {
+  fprintf(
+      stderr,
+      "IBF is licensed under the GNU General Public License v3.0. See \n"
+      "https://www.gnu.org/licenses/gpl-3.0.en.html for more information.\n");
+}
 
 /**
  * @brief Run IBF interactively in the console.
@@ -462,7 +519,7 @@ void run_console() {
           "Type \"help\", \"copyright\", \"credits\" or \"license\" for more "
           "information.\n");
   struct brainfuck_context *context = brainfuck_context_new(
-      brainfuck_input_handler_console, brainfuck_output_handler_console);
+      brainfuck_input_handler_stdin, brainfuck_output_handler_stdout);
   char *line = calloc(BRAINFUCK_MAX_LINE_LENGTH + 1, sizeof(char));
   fprintf(stderr, ">>> ");
   while (true) {
@@ -472,7 +529,17 @@ void run_console() {
       fprintf(stderr, ">>> ");
       continue;
     }
-    brainfuck_main(context, line);
+    if (strcmp(line, "help") == 0) {
+      console_print_help();
+    } else if (strcmp(line, "copyright") == 0) {
+      console_print_copyright();
+    } else if (strcmp(line, "credits") == 0) {
+      console_print_credits();
+    } else if (strcmp(line, "license") == 0) {
+      console_print_license();
+    } else {
+      brainfuck_main(context, line);
+    }
     stdin_flush();
     fprintf(stderr, ">>> ");
   }
@@ -487,7 +554,7 @@ void run_console() {
  */
 bool run_file(FILE *file) {
   struct brainfuck_context *context = brainfuck_context_new(
-      brainfuck_input_handler_console, brainfuck_output_handler_console);
+      brainfuck_input_handler_stdin, brainfuck_output_handler_stdout);
   char *line = calloc(BRAINFUCK_MAX_LINE_LENGTH + 1, sizeof(char));
   while (true) {
     if (feof(file) || !brainfuck_readline_util(
@@ -535,7 +602,7 @@ bool run_command(char *command) {
     return false;
   }
   struct brainfuck_context *context = brainfuck_context_new(
-      brainfuck_input_handler_console, brainfuck_output_handler_console);
+      brainfuck_input_handler_stdin, brainfuck_output_handler_stdout);
   if (!brainfuck_main(context, command)) {
     brainfuck_context_free(context);
     return false;
