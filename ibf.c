@@ -258,6 +258,7 @@ void brainfuck_debug_memory_inspect(struct brainfuck_context *context) {
 void brainfuck_loop_execute(struct brainfuck_context *context) {
   if (context == NULL || context->state->loop_size == 0 ||
       context->state->memory_buffer[context->state->memory_pointer] == 0) {
+    context->state->loop_size = 0;
     return;
   }
   size_t *loop_stack = malloc(sizeof(size_t) * BRAINFUCK_MAX_LOOP_DEPTH);
