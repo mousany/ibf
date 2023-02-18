@@ -514,7 +514,32 @@ void run_file(FILE *file) {}
  * @brief Run IBF from a command.
  * @param command The command to run.
  */
-void run_command(char *command) {}
+void run_command(char *command) {
+  int32_t unmatched_loop = 0;
+  for (size_t i = 0; i < strlen(command); i++) {
+    switch (command[i]) {
+      case '[':
+        unmatched_loop += 1;
+        break;
+      case ']':
+        unmatched_loop -= 1;
+        break;
+      default:
+        break;
+    }
+  }
+  if (unmatched_loop < 0) {
+    print_error_unmatched_loop_end();
+    return;
+  } else if (unmatched_loop > 0) {
+    print_error_unmatched_loop_start();
+    return;
+  }
+  struct brainfuck_context *context = brainfuck_context_new(
+      brainfuck_input_handler_console, brainfuck_output_handler_console);
+  brainfuck_main(context, command);
+  brainfuck_context_free(context);
+}
 
 /**
  * @brief Print the version of IBF.
