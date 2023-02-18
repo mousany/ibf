@@ -108,23 +108,23 @@ void brainfuck_context_free(struct brainfuck_context *context) {
 }
 
 void print_error_unmatched_loop_end() {
-  fprintf(stderr, "Error: Unmatched loop end.\n");
+  fprintf(stderr, "SyntaxError: unmatched ']'.\n");
 }
 
 void print_error_unmatched_loop_start() {
-  fprintf(stderr, "Error: Unmatched loop start.\n");
+  fprintf(stderr, "SyntaxError: unmatched '['.\n");
 }
 
 void print_error_max_loop_depth() {
-  fprintf(stderr, "Error: Max loop depth exceeded.\n");
+  fprintf(stderr, "OverflowError: max loop depth exceeded.\n");
 }
 
 void print_error_max_line_length() {
-  fprintf(stderr, "Error: Max line length exceeded.\n");
+  fprintf(stderr, "OverflowError: max line length exceeded.\n");
 }
 
 void print_error_max_loop_size() {
-  fprintf(stderr, "Error: Max loop size exceeded.\n");
+  fprintf(stderr, "OverflowError: max loop size exceeded.\n");
 }
 
 /**
@@ -312,11 +312,10 @@ void brainfuck_loop_execute(struct brainfuck_context *context) {
  * @brief Excute a line of brainfuck code.
  * @param context The context of IBF.
  * @param src A line of brainfuck code to execute.
- * @param size The size of the line.
  * @return True if the line is executed successfully, false otherwise.
  */
-bool brainfuck_main(struct brainfuck_context *context, char *src, size_t size) {
-  for (size_t i = 0; i < size; i += 1) {
+bool brainfuck_main(struct brainfuck_context *context, char *src) {
+  for (size_t i = 0; i < strlen(src); i += 1) {
     /* If the unmatched depth is 0, we can execute the instruction. */
     if (context->state->unmatched_depth == 0) {
       switch (src[i]) {
@@ -497,11 +496,12 @@ void run_console() {
       fprintf(stderr, ">>> ");
       continue;
     }
-    brainfuck_main(context, line, strlen(line));
+    brainfuck_main(context, line);
     stdin_flush();
     fprintf(stderr, ">>> ");
   }
   free(line);
+  brainfuck_context_free(context);
 }
 
 /**
