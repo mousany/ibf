@@ -237,24 +237,6 @@ bool brainfuck_loop_increase_unmatched(struct brainfuck_context *context) {
   return true;
 }
 
-void brainfuck_debug_memory_inspect(struct brainfuck_context *context) {
-  if (context == NULL) {
-    return;
-  }
-  for (size_t j = 0; j < 10; j += 1) {
-    fprintf(stderr, "%d ", context->state->memory_buffer[j]);
-  }
-  fprintf(stderr, "\n");
-  for (size_t j = 0; j < context->state->memory_pointer; j += 1) {
-    fprintf(stderr, "  ");
-  }
-  fprintf(stderr, "^\n");
-  for (size_t j = 0; j < context->state->memory_pointer; j += 1) {
-    fprintf(stderr, "  ");
-  }
-  fprintf(stderr, "%d\n", context->state->memory_pointer);
-}
-
 void brainfuck_loop_execute(struct brainfuck_context *context) {
   if (context == NULL || context->state->loop_size == 0 ||
       context->state->memory_buffer[context->state->memory_pointer] == 0) {
@@ -378,9 +360,6 @@ bool brainfuck_main(struct brainfuck_context *context, char *src) {
           break;
       }
     }
-#if defined(BRAINFUCK_DEBUG)
-    brainfuck_debug_memory_inspect(context);
-#endif
   }
   return true;
 }
@@ -485,9 +464,6 @@ void run_console() {
   struct brainfuck_context *context = brainfuck_context_new(
       brainfuck_input_handler_console, brainfuck_output_handler_console);
   char *line = calloc(BRAINFUCK_MAX_LINE_LENGTH + 1, sizeof(char));
-#if defined(BRAINFUCK_DEBUG)
-  brainfuck_debug_memory_inspect(context);
-#endif
   fprintf(stderr, ">>> ");
   while (true) {
     fflush(stdout);
