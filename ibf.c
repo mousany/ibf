@@ -624,7 +624,7 @@ void print_version() {
  * @brief Print the usage of IBF.
  */
 void print_usage() {
-  fprintf(stderr, "usage: ibf [options] ... [-c cmd | file | -] [arg] ...\n");
+  fprintf(stderr, "usage: ibf [options] ... [-c cmd | file]\n");
   fprintf(stderr, "Try `ibf -h` for more information.\n");
 }
 
@@ -632,11 +632,12 @@ void print_usage() {
  * @brief Print the help of IBF.
  */
 void print_help() {
-  fprintf(stderr, "usage: ibf [options] ... [-c cmd | file | -] [arg] ...\n");
-  fprintf(stderr, "Options:\n");
+  fprintf(stderr, "usage: ibf [options] ... [-c cmd | file]\n");
+  fprintf(stderr, "Options and arguments:\n");
   fprintf(stderr, "-v, --version\t  : Print the version of IBF.\n");
   fprintf(stderr, "-h, --help\t  : Print the help of IBF.\n");
-  fprintf(stderr, "-c, --command cmd : Run program passed in as string. \n");
+  fprintf(stderr, "-c, --cmd\t  : Run program passed in as string. \n");
+  fprintf(stderr, "file\t\t  : Program read from script file.\n");
 }
 
 /**
@@ -647,7 +648,7 @@ void print_help() {
  */
 static struct option long_options[] = {{"version", no_argument, 0, 'v'},
                                        {"help", no_argument, 0, 'h'},
-                                       {"command", required_argument, 0, 'c'},
+                                       {"cmd", required_argument, 0, 'c'},
                                        {0, 0, 0, 0}};
 
 int main(int argc, char *argv[]) {
