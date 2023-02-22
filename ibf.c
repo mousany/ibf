@@ -238,11 +238,10 @@ bool brainfuck_loop_increase_unmatched(struct brainfuck_context *context) {
 }
 
 void brainfuck_loop_execute(struct brainfuck_context *context) {
-  if (context == NULL) {
+  if (context == NULL || context->state->loop_size == 0) {
     return;
   }
-  if (context->state->loop_size == 0 ||
-      context->state->memory_buffer[context->state->memory_pointer] == 0) {
+  if (context->state->memory_buffer[context->state->memory_pointer] == 0) {
     context->state->loop_size = 0;
     return;
   }
@@ -316,6 +315,9 @@ void brainfuck_loop_execute(struct brainfuck_context *context) {
  * @return True if the line is executed successfully, false otherwise.
  */
 bool brainfuck_main(struct brainfuck_context *context, char *src) {
+  if (context == NULL || src == NULL) {
+    return false;
+  }
   for (size_t i = 0; i < strlen(src); i += 1) {
     /* If the unmatched depth is 0, we can execute the instruction. */
     if (context->state->unmatched_depth == 0) {
