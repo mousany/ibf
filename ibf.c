@@ -402,6 +402,7 @@ bool brainfuck_readline_util(FILE *stream, char *dest, size_t size,
 #define isatty _isatty
 #define STDIN_FILENO 0
 #else
+#include <stdio_ext.h>
 #include <termios.h>
 #include <unistd.h>
 #endif
@@ -414,6 +415,7 @@ void stdin_flush() {
     defined(__WIN32) && !defined(__CYGWIN__)
   fflush(stdin);
 #else
+  __fpurge(stdin);
   tcflush(STDIN_FILENO, TCIFLUSH);
 #endif
 }
