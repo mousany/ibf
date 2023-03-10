@@ -139,12 +139,7 @@ void brainfuck_execute_plus(struct brainfuck_context *context) {
   if (context == NULL) {
     return;
   }
-  if (context->state->memory_buffer[context->state->memory_pointer] ==
-      UINT8_MAX) {
-    context->state->memory_buffer[context->state->memory_pointer] = 0;
-  } else {
-    context->state->memory_buffer[context->state->memory_pointer] += 1;
-  }
+  context->state->memory_buffer[context->state->memory_pointer] += 1;
 }
 
 /**
@@ -155,11 +150,7 @@ void brainfuck_execute_minus(struct brainfuck_context *context) {
   if (context == NULL) {
     return;
   }
-  if (context->state->memory_buffer[context->state->memory_pointer] == 0) {
-    context->state->memory_buffer[context->state->memory_pointer] = UINT8_MAX;
-  } else {
-    context->state->memory_buffer[context->state->memory_pointer] -= 1;
-  }
+  context->state->memory_buffer[context->state->memory_pointer] -= 1;
 }
 
 /**
@@ -322,7 +313,7 @@ bool brainfuck_main(struct brainfuck_context *context, char *src) {
   if (context == NULL || src == NULL) {
     return false;
   }
-  for (size_t i = 0; i < strlen(src); i += 1) {
+  for (size_t i = 0; src[i] != '0'; i += 1) {
     /* If the unmatched depth is 0, we can execute the instruction. */
     if (context->state->unmatched_depth == 0) {
       switch (src[i]) {
@@ -623,7 +614,7 @@ bool run_file(FILE *file) {
  */
 bool run_command(char *command) {
   int32_t unmatched_loop = 0;
-  for (size_t i = 0; i < strlen(command); i++) {
+  for (size_t i = 0; command[i] != '\0'; i++) {
     switch (command[i]) {
       case '[':
         unmatched_loop += 1;
