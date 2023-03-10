@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BRAINFUCK_MEMORY_BUFFER_SIZE 30000
 #define BRAINFUCK_TOKEN_PLUS '+'
 #define BRAINFUCK_TOKEN_MINUS '-'
 #define BRAINFUCK_TOKEN_PREVIOUS '<'
@@ -16,9 +15,10 @@
 #define BRAINFUCK_TOKEN_LOOP_START '['
 #define BRAINFUCK_TOKEN_LOOP_END ']'
 
+#define BRAINFUCK_MEMORY_BUFFER_SIZE 30000
 #define BRAINFUCK_LOOP_BUFFER_SIZE 30000
-#define BRAINFUCK_MAX_LINE_LENGTH 1000
-#define BRAINFUCK_MAX_LOOP_DEPTH 1000
+#define BRAINFUCK_MAX_LINE_LENGTH 1024
+#define BRAINFUCK_MAX_LOOP_DEPTH 1024
 
 /**
  * @brief The input handler of IBF.
@@ -116,15 +116,15 @@ void print_error_unmatched_loop_start() {
 }
 
 void print_error_max_loop_depth() {
-  fprintf(stderr, "OverflowError: max loop depth exceeded.\n");
+  fprintf(stderr, "LoopError: maximum loop depth exceeded.\n");
 }
 
 void print_error_max_line_length() {
-  fprintf(stderr, "OverflowError: max line length exceeded.\n");
+  fprintf(stderr, "InputError: max line length exceeded.\n");
 }
 
 void print_error_max_loop_size() {
-  fprintf(stderr, "OverflowError: max loop size exceeded.\n");
+  fprintf(stderr, "LoopError: maximum loop size exceeded.\n");
 }
 
 /**
@@ -238,7 +238,10 @@ bool brainfuck_loop_increase_unmatched(struct brainfuck_context *context) {
 }
 
 void brainfuck_loop_execute(struct brainfuck_context *context) {
-  if (context == NULL || context->state->loop_size == 0 ||
+  if (context == NULL) {
+    return;
+  }
+  if (context->state->loop_size == 0 ||
       context->state->memory_buffer[context->state->memory_pointer] == 0) {
     context->state->loop_size = 0;
     return;
