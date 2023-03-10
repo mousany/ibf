@@ -252,9 +252,25 @@ void brainfuck_loop_execute(struct brainfuck_context *context) {
   while (execute_pointer < context->state->loop_size) {
     if (context->state->loop_buffer[execute_pointer] ==
         BRAINFUCK_TOKEN_LOOP_START) {
-      loop_stack[loop_stack_size] = execute_pointer;
-      loop_stack_size += 1;
-      execute_pointer += 1;
+      if (context->state->memory_buffer[context->state->memory_pointer] ==
+          0) {  // skip the loop if value is zero.
+        size_t unmatched_depth = 1;
+        execute_pointer += 1;
+        while (unmatched_depth > 0) {
+          if (context->state->loop_buffer[execute_pointer] ==
+              BRAINFUCK_TOKEN_LOOP_START) {
+            unmatched_depth += 1;
+          } else if (context->state->loop_buffer[execute_pointer] ==
+                     BRAINFUCK_TOKEN_LOOP_END) {
+            unmatched_depth -= 1;
+          }
+          execute_pointer += 1;
+        }
+      } else {  // if value is not zero, then execute the loop.
+        loop_stack[loop_stack_size] = execute_pointer;
+        loop_stack_size += 1;
+        execute_pointer += 1;
+      }
     } else if (context->state->loop_buffer[execute_pointer] ==
                BRAINFUCK_TOKEN_LOOP_END) {
       if (context->state->memory_buffer[context->state->memory_pointer] != 0) {
