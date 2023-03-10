@@ -127,6 +127,10 @@ void print_error_max_loop_size() {
   fprintf(stderr, "LoopError: maximum loop size exceeded.\n");
 }
 
+void print_error_unexpected_eof() {
+  fprintf(stderr, "IOError: unexpected EOF.\n");
+}
+
 /**
  * @brief Execute the plus instruction `+` of brainfuck.
  * @param context The context of IBF.
@@ -473,11 +477,19 @@ void stdin_flush() {
 
 uint8_t brainfuck_input_handler_stdin() {
   char ch = getchar();
-  fprintf(stderr, "%d", ch);
+  if (ch == EOF) {
+    // print_error_unexpected_eof();
+    exit(EXIT_FAILURE);
+  }
   return ch;
 }
 
-void brainfuck_output_handler_stdout(uint8_t c) { putchar(c); }
+void brainfuck_output_handler_stdout(uint8_t c) {
+  if (putchar(c) == EOF) {
+    // print_error_unexpected_eof();
+    exit(EXIT_FAILURE);
+  }
+}
 
 void console_print_help() {
   fprintf(stderr, "Welcome to IBF %d.%d.%d!\n", IBF_VERSION_MAJOR,
