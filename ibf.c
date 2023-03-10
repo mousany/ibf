@@ -371,7 +371,9 @@ bool brainfuck_main(struct brainfuck_context *context, char *src) {
           break;
         case BRAINFUCK_TOKEN_LOOP_END:
           context->state->unmatched_depth -= 1;
-          brainfuck_loop_enque(context, src[i]);
+          if (!brainfuck_loop_enque(context, src[i])) {
+            return false;
+          }
           if (context->state->unmatched_depth == 0) {
             /* If the unmatched depth is 0, we can execute the loop. */
             brainfuck_loop_execute(context);
@@ -469,7 +471,11 @@ void stdin_flush() {
 #define IBF_VERSION_MINOR 1
 #define IBF_VERSION_PATCH 0
 
-uint8_t brainfuck_input_handler_stdin() { return getchar(); }
+uint8_t brainfuck_input_handler_stdin() {
+  char ch = getchar();
+  fprintf(stderr, "%d", ch);
+  return ch;
+}
 
 void brainfuck_output_handler_stdout(uint8_t c) { putchar(c); }
 
